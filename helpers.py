@@ -1,3 +1,9 @@
+import dlib
+import cv2
+import numpy as np
+from skimage.transform import resize
+import random
+
 def setup_predictor_and_detector():
     predictor_path = "/content/shape_predictor_68_face_landmarks.dat"
     detector = dlib.get_frontal_face_detector()
