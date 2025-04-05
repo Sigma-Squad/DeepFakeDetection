@@ -28,3 +28,19 @@ def extract_face(augmented_image, landmarks):
     face_only = cv2.bitwise_and(augmented_image, augmented_image, mask=mask)
 
     return face_only, mask
+
+def augment_image(image):
+
+    alpha = np.random.uniform(0.55, 0.65)  # Contrast
+    beta = np.random.randint(-30, 30)      # Brightness
+    augmented_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+
+    # random color shift
+    if random.random() < 0.5:
+        augmented_image = augmented_image.astype(np.int32)
+        augmented_image[:, :, 0] += np.random.randint(-10, 10)  # B
+        augmented_image[:, :, 1] += np.random.randint(-10, 10)  # G
+        augmented_image[:, :, 2] += np.random.randint(-10, 10)  # R
+        augmented_image = np.clip(augmented_image, 0, 255).astype(np.uint8)
+
+    return augmented_image
