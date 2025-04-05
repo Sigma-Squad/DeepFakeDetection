@@ -15,7 +15,7 @@ def SBI_face(image):
     # Extract face region
     face_only, mask = help.extract_face(augmented_image, landmarks)
 
-    return face_only, mask
+    return face_only, mask, landmarks
 
 
 
