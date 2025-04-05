@@ -1,8 +1,3 @@
-import dlib
-import cv2
-import numpy as np
-from skimage.transform import resize
-import random
 import helpers as help
 
 def SBI_face(image):
