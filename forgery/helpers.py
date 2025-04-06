@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from skimage.transform import resize
 import random
+from scipy.spatial import procrustes
 
 def setup_predictor_and_detector():
     predictor_path = "/content/shape_predictor_68_face_landmarks.dat"
@@ -44,3 +45,12 @@ def augment_image(image):
         augmented_image = np.clip(augmented_image, 0, 255).astype(np.uint8)
 
     return augmented_image
+
+def landmark_similarity(landmarks1, landmarks2):
+    """ Calculate the similarity between two sets of landmarks. """
+    if landmarks1.shape != landmarks2.shape:
+        raise ValueError("Landmarks must have the same shape")
+
+    # Procrustes analysis
+    mtx1, mtx2, disparity = procrustes(landmarks1, landmarks2)
+    return disparity
