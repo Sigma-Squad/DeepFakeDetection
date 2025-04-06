@@ -1,4 +1,4 @@
-dlib == 19.24.6
-opencv-python == 4.11.0.86
-scikit-image == 0.25.2
-
+dlib==19.24.6
+numpy==2.2.4
+opencv_python==4.11.0.86
+skimage==0.0
