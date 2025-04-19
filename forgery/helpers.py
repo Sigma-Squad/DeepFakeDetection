@@ -104,8 +104,11 @@ def blend_face_into_target(target_img, face_img, warped_mask):
     # Mask out the region of the target where the face will go
     target_face = cv2.bitwise_and(target_img, target_img, mask=cv2.bitwise_not(warped_mask))
     
-    # Add the warped face to the target image
-    blended_face = cv2.add(target_face, face_img)
+    # Mask the warped face to only include face pixels
+    masked_face = cv2.bitwise_and(face_img, face_img, mask=warped_mask)
+    
+    # Add the masked warped face to the target image
+    blended_face = cv2.add(target_face, masked_face)
     
     return blended_face
 
@@ -130,11 +133,9 @@ def fit_face_to_target(source_face, source_landmarks, target_mask, target_landma
     # Step 3: Warp the source face image to fit the target geometry
     img_warped = warp_face(source_face, M, target_img.shape[1::-1])
     
-    # Step 4: Warp the source mask similarly to the face image
-    warped_mask = cv2.warpAffine(target_mask, M, target_img.shape[1::-1])
-    
-    # Step 5: Blend the warped face image into the target image using the target mask
-    blended_img = blend_face_into_target(target_img, img_warped, warped_mask)
+    # Step 4: Blend the warped face image into the target image using the target mask
+    # (No need to warp the target mask since it's already in target space)
+    blended_img = blend_face_into_target(target_img, img_warped, target_mask)
     
     return blended_img
 
