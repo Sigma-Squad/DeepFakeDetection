@@ -1,14 +1,7 @@
-#install the following 
-#pip install dlib opencv-python numpy albumentations scikit-image
-
-
 import dlib
 import cv2
 import numpy as np
 from skimage.transform import resize
-
-
-
 
 #Extracting frames of the video
 def extract_frames(video_path, n):
@@ -18,7 +11,7 @@ def extract_frames(video_path, n):
         print("Error: Could not open video.")
         return None, None
 
-    cap.set(cv2.CAP_PROP_POS_FRAMES, n)  # Set video to nth frame
+    cap.set(cv2.CAP_PROP_POS_FRAMES, n) 
 
     # Read nth frame
     ret1, frame_n = cap.read()
@@ -37,38 +30,10 @@ def extract_frames(video_path, n):
     cap.release()
     return frame_n, frame_n1
 
-video_file = "video.mp4"  # Replace with your video file path
-n = 200  # Frame index to extract
-frame_n, frame_n1 = extract_frames(video_file, n)
-
-if frame_n is not None:
-    print(f"Displaying Frame {n}:")
-    cv2.imshow(frame_n)
-
-if frame_n1 is not None:
-    print(f"Displaying Frame {n+1}:")
-    cv2.imshow(frame_n1)
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-
-# Save frames as PNG images
-if frame_n is not None:
-    cv2.imwrite(f"frame_{n}.png", frame_n)  # Save nth frame as PNG
-    print(f"Frame {n} saved as frame_{n}.png")
-
-if frame_n1 is not None:
-    cv2.imwrite(f"frame_{n+1}.png", frame_n1)  # Save (n+1)th frame as PNG
-    print(f"Frame {n+1} saved as frame_{n+1}.png")
-
-
-
-
 #Landmark Detection
 
 #Load the landmark detector
-predictor_path = "/content/shape_predictor_68_face_landmarks.dat" #replace with the path of your landmark detection file
+predictor_path = "/content/shape_predictor_68_face_landmarks.dat" 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
 
@@ -94,10 +59,9 @@ def extract_face(image, mask):
     return cv2.bitwise_and(image, image, mask=mask)
 
 #creating a self shifted blended image by extracting face from the nth frame and blending it onto the n+1th frame
-def apply_self_shift_blend(image_n, image_n1, mask_n):
+def self_shift_blended_image(image_n, image_n1, mask_n):
     h, w = image_n.shape[:2]
-
-    # Extract face region from frame_n
+    # TODO - fix face_region_n extraction
     face_region_n = cv2.bitwise_and(image_n, image_n, mask=mask_n)
 
     # Resize extracted face to match n+1 frame dimensions
@@ -110,32 +74,17 @@ def apply_self_shift_blend(image_n, image_n1, mask_n):
 
     return blended
 
-
-
-
-# Load frames n and n+1
-frame_n_path = "/content/frame_200.png"  # nth frame
-frame_n1_path = "/content/frame_201.png"  # (n+1)th frame
-
-frame_n = cv2.imread(frame_n_path)
-frame_n1 = cv2.imread(frame_n1_path)
-
-if frame_n is None or frame_n1 is None:
-    print("Error: Could not load one or both frames.")
-else:
-    # Get landmarks from frame the nth frame
-    landmarks_n = get_landmarks(frame_n)
-
-    if landmarks_n is not None:
-        # Create mask from frame nth frame
-        mask_n = create_mask(frame_n, landmarks_n)
-
-        # Apply self-shifted blending onto frame (n+1)th frame
-        ssbi_image = apply_self_shift_blend(frame_n, frame_n1, mask_n)
-
-        # Show final SSBI output
-        cv2.imshow(ssbi_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-    else:
-        print("No face detected in frame 200.")
+## getter function for ssbi forgery augmentation ##
+def get_self_shift_blended_image(image_path_n1,image_path_n2):
+    frame_n1 = cv2.imread(image_path_n1)
+    frame_n2 = cv2.imread(image_path_n2)
+    if frame_n1 is None or frame_n2 is None:
+        raise Exception("Error: Could not load one or both frames.")
+    landmarks_n1 = get_landmarks(frame_n1)
+    if landmarks_n1:
+        try:
+            mask_n = create_mask(frame_n1, landmarks_n1)
+            ssbi_image = self_shift_blended_image(frame_n1, frame_n2, mask_n)
+            return ssbi_image
+        except Exception as e:
+            raise Exception(f"Error during self-shift blending: {e}")
