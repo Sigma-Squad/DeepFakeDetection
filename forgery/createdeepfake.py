@@ -1,5 +1,4 @@
 import cv2
-import os
 import random
 
 def create_deepfake_video(video_path, output_path=None, blending_interval=5, window_size=10, max_frames=None):
