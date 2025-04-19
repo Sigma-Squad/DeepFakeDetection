@@ -6,7 +6,7 @@ import random
 from scipy.spatial import procrustes
 
 def setup_predictor_and_detector():
-    predictor_path = "/content/shape_predictor_68_face_landmarks.dat"
+    predictor_path = "datfile"
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
 
